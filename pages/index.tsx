@@ -1,7 +1,6 @@
 import type { NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { json } from "stream/consumers";
 import styles from "../styles/Home.module.css";
 import { message } from "../types/message";
 
@@ -11,28 +10,30 @@ const Home: NextPage = () => {
     username: "",
     message: "",
   });
-  const [dataFromSocket, setDataFromSocket] = useState<message | null>(null);
+  const [dataFromSocket, setDataFromSocket] = useState<message[]>([]);
+  //const [socketConnection, setSocketConnection] = useState(false);
 
   useEffect(() => {
     socketInitializer();
-  }, []);
+  }, [dataFromSocket]);
 
   const socketInitializer = async () => {
     await fetch("/api/socket");
-    socket = io();
+    socket =io();
     socket.on("connect", () => {
       console.log("connected");
     });
     socket.on("updateInput", (msg: any) => {
-      console.log(msg)
-      setDataFromSocket(msg);
+      setDataFromSocket([...dataFromSocket, msg]);
+      console.log(dataFromSocket)
     });
+    //setSocketConnection(false)
   };
-
+  
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
   };
-
+  
   const handleUsername = (e: React.FormEvent<HTMLInputElement>) => {
     setMessageToSocket({
       ...messageToSocket,
@@ -45,39 +46,40 @@ const Home: NextPage = () => {
       message: e.currentTarget.value,
     });
   };
-
+  
   const handleSendMessage = () => {
+    //setSocketConnection(true);
     if (messageToSocket) {
       socket.emit("sendMessage", messageToSocket);
     }
   };
 
-  
-
+  console.log(dataFromSocket)
   return (
     <div className={styles.container}>
       <section>
-        {dataFromSocket && (
-          Object.entries(dataFromSocket as message).map((e, idx)=>{
-            return <p key={idx}>{e}</p>
-          })
+        { 
+          dataFromSocket.map((e, idx)=>{
+            return <p key={idx}>{e.username}</p>
+          }
         )}
-      
       </section>
-      <form className={styles.form} onSubmit={handleSubmit}>
+      <form className={styles.form} onSubmit={handleSubmit} autoComplete="off">
         <input
           type="text"
           value={messageToSocket.username}
           placeholder="Username"
           name="username"
           onChange={handleUsername}
+          autoComplete="off"
         />
         <input
           type="text"
           value={messageToSocket.message}
-          name= "message"
+          name="message"
           placeholder="Message"
           onChange={handleMessage}
+          autoComplete="off"
         />
         <button onClick={handleSendMessage}>Send</button>
       </form>

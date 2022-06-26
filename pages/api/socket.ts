@@ -8,9 +8,9 @@ const handlerSocket = (req: NextApiRequest, res: nextAPIResponseServerIo) => {
     console.log("sockect initialized");
     const io = new Server(res.socket.server as any);
     res.socket.server.io = io;
-    io.on("connection", (socket) => {
+    io.on("connect", (socket) => {
       socket.on("sendMessage", (msg) => {
-        socket.emit("updateInput", msg);
+        io.sockets.emit("updateInput", msg);
       });
     });
   }
