@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 let socket: any;
 const Home: NextPage = () => {
-  const [messageToSocket, setMessageToSocket] = useState({
+  const [messageToSocket, setMessageToSocket] = useState<message>({
     username: "",
     message: "",
   });
@@ -66,6 +66,10 @@ const Home: NextPage = () => {
     }
     if (messageToSocket) {
       socket.emit("sendMessage", messageToSocket);
+      setMessageToSocket({
+        ...messageToSocket,
+        message: ""
+      })
     }
   };
 
@@ -80,7 +84,7 @@ const Home: NextPage = () => {
           dataFromSocket.map( (e, idx) =>{
             return (
               <div key={v4()} className={idx % 2 !== 0 ?  styles.messageContainerRight:styles.messageContainerLeft}>
-                <div key={v4()}>
+                <div key={v4()} className={styles.Messagecontainer}>
                   <p key={v4()} className={styles.username}>{e.username || "unknown"}:</p>
                   <p key={v4()} className={styles.message}>{e.message}</p>
                 </div>

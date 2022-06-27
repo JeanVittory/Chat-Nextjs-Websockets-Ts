@@ -50,10 +50,6 @@
   -webkit-backdrop-filter: blur(6px);
 }
 
-.messageContainer{
-  padding: .5rem .3rem;
-}
-
 .messageContainerLeft{
   display: flex;
   justify-content: flex-start;
@@ -61,17 +57,22 @@
 }
 
 .messageContainerRight{
+  text-align: end;
   display: flex;
   justify-content: flex-end;
   padding: .5rem;
 }
-
+.Messagecontainer{
+  width: 50%;
+}
 .username{
+  word-wrap: break-word;
   margin: 0;
   font-weight: 500;
   
 }
 .message{
+  word-wrap: break-word;
   font-size: 14px;
   margin: 0;
   padding: .3rem .3rem;
