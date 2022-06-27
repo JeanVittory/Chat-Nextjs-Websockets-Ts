@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { v4 } from "uuid";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import styles from "../styles/Home.module.css";
 import { message } from "../types/message";
@@ -15,10 +15,15 @@ const Home: NextPage = () => {
     message: "",
   });
   const [dataFromSocket, setDataFromSocket] = useState<message[]>([]);
-
+  const bottomView = useRef<null | HTMLDivElement>(null)
 
   useEffect(() => {
     socketInitializer();
+    scrollBottom()
+    return () =>{
+      socketInitializer()
+      
+    }
   }, [dataFromSocket]);
 
   const socketInitializer = async () => {
@@ -29,9 +34,8 @@ const Home: NextPage = () => {
     });
     socket.on("updateInput", (msg: any) => {
       setDataFromSocket([...dataFromSocket, msg]);
-      console.log(dataFromSocket)
+      
     });
-    //setSocketConnection(false)
   };
   
   const handleSubmit = (e: React.SyntheticEvent) => {
@@ -52,6 +56,7 @@ const Home: NextPage = () => {
   };
   
   const handleSendMessage = () => {
+    
     if(!messageToSocket.username){
       toast('username field must be filled', {
         position: "top-right",
@@ -66,12 +71,23 @@ const Home: NextPage = () => {
     }
     if (messageToSocket) {
       socket.emit("sendMessage", messageToSocket);
+      
       setMessageToSocket({
         ...messageToSocket,
         message: ""
       })
     }
+    
   };
+
+  const scrollBottom = () =>{
+    if(bottomView.current){
+      bottomView.current.scroll({
+        top: bottomView.current.scrollHeight,
+        behavior:"smooth"
+      })
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -79,20 +95,22 @@ const Home: NextPage = () => {
       <Head>
         <title>Chat App</title>
       </Head>
-      <section className={styles.chat}>
+      <section className={styles.chat} ref={bottomView}>
         { 
           dataFromSocket.map( (e, idx) =>{
             return (
-              <div key={v4()} className={idx % 2 !== 0 ?  styles.messageContainerRight:styles.messageContainerLeft}>
+              <div key={v4()} className={idx % 2 !== 0 ?  styles.messageContainerRight:styles.messageContainerLeft} >
                 <div key={v4()} className={styles.Messagecontainer}>
                   <p key={v4()} className={styles.username}>{e.username || "unknown"}:</p>
-                  <p key={v4()} className={styles.message}>{e.message}</p>
+                  <p key={v4()} className={styles.message} >{e.message} </p>
                 </div>
               </div>
             )
           }
-        )}
+          )}
+          
       </section>
+      <div ref={bottomView}></div>
       <form className={styles.form} onSubmit={handleSubmit} autoComplete="off">
         <input
           type="text"
